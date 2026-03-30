@@ -1,26 +1,105 @@
 {% extends "base_generic.html" %}
 
+{% block title %}
+<title>{{ book.title }} | Local Library</title>
+{% endblock %}
+
+{% block header_title %}Overview Details{% endblock %}
+
 {% block content %}
-  <h1>Title: {{ book.title }}</h1>
-  <p><strong>Author:</strong> <a href="{% url 'author-detail' book.author.pk %}">{{ book.author }}</a></p> 
-  <p><strong>Summary:</strong> {{ book.summary }}</p>
-  <p><strong>ISBN:</strong> {{ book.isbn }}</p> 
-  <p><strong>Language:</strong> {{ book.language }}</p>  
-  <p><strong>Genre:</strong> {{ book.genre.all|join:", " }}</p>  
-
-  <div style="margin-left:20px;margin-top:20px">
-    <h4>Copies</h4>
-
-    {% for copy in book.bookinstance_set.all %}
-      <hr>
-      <p class="{% if copy.status == 'a' %}text-success{% elif copy.status == 'm' %}text-danger{% else %}text-warning{% endif %}">
-        {{ copy.get_status_display }}
-      </p>
-      {% if copy.status != 'a' %}
-        <p><strong>Due to be returned:</strong> {{ copy.due_back }}</p>
-      {% endif %}
-      <p><strong>Imprint:</strong> {{ copy.imprint }}</p>
-      <p class="text-muted"><strong>Id:</strong> {{ copy.id }}</p>
-    {% endfor %}
+<div class="mb-6 flex justify-between items-center">
+  <a href="{% url 'books' %}" class="text-sm font-medium text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+    &larr; Back to Catalog
+  </a>
+  <div class="flex gap-2">
+    {% if perms.catalog.change_book %}
+    <a href="{% url 'book_update' book.pk %}" class="btn-secondary text-xs py-1.5">Edit</a>
+    {% endif %}
+    {% if perms.catalog.delete_book %}
+    <a href="{% url 'book_delete' book.pk %}" class="btn-secondary text-red-600 hover:text-red-700 text-xs py-1.5 focus:ring-red-300">Delete</a>
+    {% endif %}
   </div>
+</div>
+
+<div class="card relative overflow-hidden">
+  <div class="absolute top-0 right-0 p-8 opacity-5">
+    <svg class="w-48 h-48" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+  </div>
+  
+  <div class="relative z-10 flex flex-col md:flex-row gap-8">
+    <div class="flex-1">
+      <h1 class="text-3xl font-bold tracking-tight text-slate-900 mb-2">{{ book.title }}</h1>
+      <p class="text-lg text-slate-500 mb-6">By <a href="{% url 'author-detail' book.author.pk %}" class="text-indigo-600 hover:text-indigo-800 font-medium">{{ book.author }}</a></p> 
+      
+      <div class="prose prose-slate max-w-none text-slate-600 mb-8 border-l-4 border-indigo-100 pl-4">
+        {{ book.summary }}
+      </div>
+      
+      <div class="grid grid-cols-2 gap-y-4 gap-x-8 max-w-lg">
+        <div>
+          <span class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">ISBN</span>
+          <span class="text-slate-800 font-medium font-mono bg-slate-100 px-2 py-1 rounded">{{ book.isbn }}</span>
+        </div>
+        <div>
+          <span class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Language</span>
+          <span class="text-slate-800 font-medium">{{ book.language|default:"Unknown" }}</span>
+        </div>
+        <div class="col-span-2">
+          <span class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Genres</span>
+          <div class="flex flex-wrap gap-2">
+            {% for genre in book.genre.all %}
+              <span class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 ring-1 ring-inset ring-blue-600/20">{{ genre }}</span>
+            {% empty %}
+              <span class="text-slate-500 text-sm">No genres listed</span>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mt-8">
+  <h2 class="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+    <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+    Library Inventory
+  </h2>
+  
+  <div class="bg-white shadow-sm ring-1 ring-slate-200 rounded-xl overflow-hidden text-sm">
+    <ul class="divide-y divide-slate-100">
+      {% for copy in book.bookinstance_set.all %}
+        <li class="p-4 hover:bg-slate-50 transition-colors flex sm:flex-row flex-col sm:items-center gap-4 justify-between">
+          <div>
+            <div class="flex items-center gap-3 mb-1">
+              {% if copy.status == 'a' %}
+                <span class="inline-flex items-center rounded-md bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/20">Available</span>
+              {% elif copy.status == 'm' %}
+                <span class="inline-flex items-center rounded-md bg-rose-50 px-2 py-1 text-xs font-medium text-rose-700 ring-1 ring-inset ring-rose-600/20">Maintenance</span>
+              {% else %}
+                <span class="inline-flex items-center rounded-md bg-amber-50 px-2 py-1 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20">{{ copy.get_status_display }}</span>
+              {% endif %}
+              
+              <span class="text-slate-500 font-mono text-xs">ID: {{ copy.id }}</span>
+            </div>
+            
+            <p class="text-slate-700 font-medium">{{ copy.imprint }}</p>
+          </div>
+          
+          {% if copy.status != 'a' %}
+            <div class="text-left sm:text-right">
+              <span class="block text-xs text-slate-500 mb-1">Due to be returned</span>
+              {% if copy.is_overdue %}
+                <span class="text-rose-600 font-semibold">{{ copy.due_back }} (Overdue)</span>
+              {% else %}
+                <span class="text-slate-700 font-medium">{{ copy.due_back }}</span>
+              {% endif %}
+            </div>
+          {% endif %}
+        </li>
+      {% empty %}
+        <li class="p-6 text-center text-slate-500">No copies currently available in the system.</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
 {% endblock %}

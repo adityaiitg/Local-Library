@@ -1,0 +1,53 @@
+[project]
+name = "local-library"
+version = "1.0.0"
+description = "A Django-based local library web application"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "django>=5.1,<6.0",
+    "python-decouple>=3.8",
+    "dj-database-url>=2.3",
+    "gunicorn>=23.0",
+    "whitenoise[brotli]>=6.8",
+    "django-tailwind-cli>=3.0",
+    "django-htmx>=1.20",
+    "django-crispy-forms>=2.3",
+    "crispy-tailwind>=1.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-django>=4.9",
+    "coverage[toml]>=7.6",
+    "factory-boy>=3.3",
+]
+
+
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "locallibrary.settings"
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+testpaths = ["catalog/tests"]
+
+[tool.coverage.run]
+source = ["."]
+omit = [
+    "*/migrations/*",
+    "*/tests/*",
+    "manage.py",
+    "locallibrary/wsgi.py",
+    "locallibrary/asgi.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]

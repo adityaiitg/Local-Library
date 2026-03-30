@@ -1,15 +1,45 @@
 {% extends "base_generic.html" %}
+{% load crispy_forms_tags %}
+
+{% block header_title %}Renew Library Copy{% endblock %}
 
 {% block content %}
-  <h1>Renew: {{ book_instance.book.title }}</h1>
-  <p>Borrower: {{ book_instance.borrower }}</p>
-  <p{% if book_instance.is_overdue %} class="text-danger"{% endif %}>Due date: {{ book_instance.due_back }}</p>
-    
-  <form action="" method="post">
-    {% csrf_token %}
-    <table>
-    {{ form.as_table }}
-    </table>
-    <input type="submit" value="Submit">
-  </form>
+<div class="max-w-2xl mx-auto">
+  <div class="mb-6">
+    <a href="{% url 'all-borrowed' %}" class="text-sm font-medium text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+      &larr; Back to all borrowed items
+    </a>
+  </div>
+
+  <div class="card">
+    <div class="border-b border-slate-200 pb-5 mb-5">
+      <h2 class="text-2xl font-bold leading-tight text-slate-900">Renew: {{ book_instance.book.title }}</h2>
+      <div class="mt-2 flex flex-col sm:flex-row sm:flex-wrap sm:space-x-6 text-sm text-slate-500">
+        <div class="mt-2 flex items-center">
+          <svg class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zM9 5a1 1 0 112 0v4.207l1.707 1.707a1 1 0 01-1.414 1.414l-2-2A1 1 0 019 10V5z" clip-rule="evenodd" /></svg>
+          Borrower: <span class="font-medium text-slate-900 ml-1">{{ book_instance.borrower.get_username }}</span>
+        </div>
+        <div class="mt-2 flex items-center">
+          <span class="{% if book_instance.is_overdue %}text-red-500 font-bold{% else %}text-amber-600{% endif %}">
+            Currently due: {{ book_instance.due_back }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- We can use hx-post to submit this form via HTMX seamlessly without full refresh -->
+    <form method="post" action="" hx-post="" hx-target="#main-content" hx-push-url="true" class="space-y-6">
+      {% csrf_token %}
+      
+      <div class="bg-indigo-50/50 p-4 rounded-lg border border-indigo-100 mb-6 font-medium text-indigo-900">
+        {{ form|crispy }}
+      </div>
+      
+      <div class="flex gap-4">
+        <button type="submit" class="btn-primary">Execute Renewal</button>
+        <a href="{% url 'all-borrowed' %}" class="btn-secondary flex items-center justify-center">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
 {% endblock %}
