@@ -1,37 +1,70 @@
 {% extends "base_generic.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+<title>Login | Local Library</title>
+{% endblock %}
+
+{% block header_title %}Account Access{% endblock %}
 
 {% block content %}
-
-  {% if form.errors %}
-    <p>Your username and password didn't match. Please try again.</p>
-  {% endif %}
-  
-  {% if next %}
-    {% if user.is_authenticated %}
-      <p>Your account doesn't have access to this page. To proceed,
-      please login with an account that has access.</p>
-    {% else %}
-      <p>Please login to see this page.</p>
-    {% endif %}
-  {% endif %}
-  
-  <form method="post" action="{% url 'login' %}">
-    {% csrf_token %}
-    <table>
-      <tr>
-        <td>{{ form.username.label_tag }}</td>
-        <td>{{ form.username }}</td>
-      </tr>
-      <tr>
-        <td>{{ form.password.label_tag }}</td>
-        <td>{{ form.password }}</td>
-      </tr>
-    </table>
-    <input type="submit" value="login" />
-    <input type="hidden" name="next" value="{{ next }}" />
-  </form>
-  
-  {# Assumes you setup the password_reset view in your URLconf #}
-  <p><a href="{% url 'password_reset' %}">Lost password?</a></p>
-  
+<div class="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-50/50">
+  <div class="w-full max-w-md space-y-8">
+    
+    <div class="text-center">
+      <h2 class="mt-6 text-3xl font-bold tracking-tight text-slate-900">Sign in to your account</h2>
+      <p class="mt-2 text-sm text-slate-600">
+        Or return to the <a href="{% url 'index' %}" class="font-medium text-indigo-600 hover:text-indigo-500 transition-colors">catalog</a>
+      </p>
+    </div>
+    
+    <div class="card shadow-lg bg-white p-8">
+      {% if form.errors %}
+        <div class="mb-6 rounded-md bg-red-50 p-4 shadow-sm border border-red-100">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm font-medium text-red-800">Your username and password didn't match. Please try again.</p>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+      
+      {% if next %}
+        {% if user.is_authenticated %}
+          <div class="mb-6 rounded-md bg-yellow-50 p-4 border border-yellow-200">
+            <p class="text-sm text-yellow-800">Your account doesn't have access to this page. Please proceed with an authorized account.</p>
+          </div>
+        {% else %}
+          <div class="mb-6 rounded-md bg-blue-50 p-4 border border-blue-200">
+            <p class="text-sm text-blue-800">Please login to access this secure page.</p>
+          </div>
+        {% endif %}
+      {% endif %}
+    
+      <form method="post" action="{% url 'login' %}" class="space-y-6">
+        {% csrf_token %}
+        
+        {{ form|crispy }}
+        
+        <input type="hidden" name="next" value="{{ next }}" />
+        
+        <div>
+          <button type="submit" class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-colors">
+            Sign in
+          </button>
+        </div>
+      </form>
+      
+      <div class="mt-6 text-center text-sm">
+        <a href="{% url 'password_reset' %}" class="font-medium text-slate-500 hover:text-indigo-600 transition-colors">Forgot your password?</a>
+      </div>
+      
+    </div>
+  </div>
+</div>
 {% endblock %}

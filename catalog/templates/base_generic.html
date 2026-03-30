@@ -1,68 +1,144 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  {% block title %}<title>Local Library</title>{% endblock %}
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-  <!-- Add additional CSS in static file -->
-  {% load static %}
-  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  {% block title %}<title>Local Library</title>{% endblock %}
+  
+  <!-- Inter Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- HTMX -->
+  <script src="https://unpkg.com/htmx.org@1.9.11"></script>
+  
+  <!-- Tailwind CSS -->
+  {% load tailwind_cli %}
+  {% tailwind_css %}
+  
+  <style>
+    /* Smooth page transitions for HTMX */
+    .htmx-indicator { opacity: 0; transition: opacity 200ms ease-in; }
+    .htmx-request .htmx-indicator { opacity: 1; }
+    .htmx-request.htmx-indicator { opacity: 1; }
+  </style>
 </head>
-<body>
-  <div class="container-fluid">
-    <div class="row">
-      <div class="col-sm-2">
-      {% block sidebar %}
-        <ul class="sidebar-nav">
-          <li><a href="{% url 'index' %}">Home</a></li>
-          <li><a href="{% url 'books' %}">All books</a></li>
-          <li><a href="{% url 'author' %}">All authors</a></li>
-        </ul>
-     {% endblock %}
+<body class="bg-slate-50 text-slate-900 font-sans antialiased selection:bg-indigo-200" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+  
+  <div class="flex min-h-screen">
+    
+    <!-- Sidebar -->
+    <aside class="w-64 bg-slate-900 text-slate-300 shadow-2xl flex-shrink-0 sticky top-0 h-screen overflow-y-auto">
+      <div class="p-6">
+        <div class="flex items-center gap-3 text-indigo-400 mb-8">
+          <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+          <h2 class="text-2xl font-bold text-white tracking-tight">Local Library</h2>
+        </div>
+        
+        {% block sidebar %}
+        <nav class="space-y-1">
+          <p class="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Navigation</p>
+          <a href="{% url 'index' %}" class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white transition-colors {% if request.path == '/' %}bg-indigo-600 text-white{% endif %}">
+            Home
+          </a>
+          <a href="{% url 'books' %}" class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white transition-colors {% if '/books/' in request.path %}bg-slate-800 text-white{% endif %}">
+            All Books
+          </a>
+          <a href="{% url 'author' %}" class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white transition-colors {% if '/author/' in request.path %}bg-slate-800 text-white{% endif %}">
+            All Authors
+          </a>
+
+          <div class="mt-8 border-t border-slate-700 pt-6">
+            <p class="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Account</p>
+            {% if user.is_authenticated %}
+              <div class="px-3 py-2 text-sm font-medium text-slate-400">Logged in as: <span class="text-indigo-400">{{ user.get_username }}</span></div>
+              <a href="{% url 'my-borrowed' %}" class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white transition-colors">
+                My Borrowed
+              </a>
+              <form method="post" action="{% url 'logout' %}?next={{request.path}}">
+                {% csrf_token %}
+                <button type="submit" class="w-full text-left group flex items-center px-3 py-2 text-sm font-medium rounded-lg hover:bg-red-500/10 hover:text-red-400 transition-colors">
+                  Logout
+                </button>
+              </form>
+            {% else %}
+              <a href="{% url 'login' %}?next={{request.path}}" class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white transition-colors">
+                Login
+              </a>
+            {% endif %} 
+          </div>
+
+          {% if user.is_staff %}
+          <div class="mt-8 border-t border-slate-700 pt-6">
+            <p class="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Staff Functions</p>
+            {% if perms.catalog.can_mark_returned %}
+              <a href="{% url 'all-borrowed' %}" class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white transition-colors">
+                All Borrowed Books
+              </a>
+            {% endif %}
+          </div>
+          {% endif %}
+        </nav>
+        {% endblock %}
       </div>
-      <div class="col-sm-10 ">{% block content %}{% endblock %}
+    </aside>
+
+    <!-- Main Content wrapper for HTMX targeting -->
+    <main id="main-content" class="flex-1 overflow-x-hidden flex flex-col">
+      <!-- Top header strip -->
+      <header class="bg-white border-b border-slate-200 h-16 flex items-center px-8 shadow-sm justify-between">
+        <h1 class="text-xl font-semibold text-slate-800">{% block header_title %}Dashboard{% endblock %}</h1>
+        <div class="flex items-center gap-4">
+           <!-- HTMX Loading Indicator -->
+           <img id="spinner" class="htmx-indicator h-6 w-6 opacity-50" src="https://raw.githubusercontent.com/n3r4zzurr0/svg-spinners/main/preview/90-ring-with-custom-colors.svg" alt="Loading.."/>
+        </div>
+      </header>
+
+      <div class="p-8 max-w-7xl mx-auto w-full flex-1">
+        {% block content %}{% endblock %}
+        
         {% block pagination %}
           {% if is_paginated %}
-              <div class="pagination">
-                  <span class="page-links">
-                      {% if page_obj.has_previous %}
-                          <a href="{{ request.path }}?page={{ page_obj.previous_page_number }}">previous</a>
-                      {% endif %}
-                      <span class="page-current">
-                          Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-                      </span>
-                      {% if page_obj.has_next %}
-                          <a href="{{ request.path }}?page={{ page_obj.next_page_number }}">next</a>
-                      {% endif %}
-                  </span>
+              <div class="mt-8 flex items-center justify-between border-t border-slate-200 px-4 py-3 sm:px-6">
+                  <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                      <div>
+                          <p class="text-sm text-slate-700">
+                              Showing Page <span class="font-medium">{{ page_obj.number }}</span> of <span class="font-medium">{{ page_obj.paginator.num_pages }}</span>
+                          </p>
+                      </div>
+                      <div>
+                          <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                              {% if page_obj.has_previous %}
+                                  <!-- We use standard href here but add hx-get to augment it dynamically with htmx -->
+                                  <a href="?page={{ page_obj.previous_page_number }}" hx-get="?page={{ page_obj.previous_page_number }}" hx-target="#main-content" hx-push-url="true" class="relative inline-flex items-center rounded-l-md px-2 py-2 text-slate-400 ring-1 ring-inset ring-slate-300 hover:bg-slate-50 focus:z-20 focus:outline-offset-0">
+                                      <span class="sr-only">Previous</span>
+                                      <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                          <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
+                                      </svg>
+                                  </a>
+                              {% endif %}
+                              
+                              {% if page_obj.has_next %}
+                                  <a href="?page={{ page_obj.next_page_number }}" hx-get="?page={{ page_obj.next_page_number }}" hx-target="#main-content" hx-push-url="true" class="relative inline-flex items-center rounded-r-md px-2 py-2 text-slate-400 ring-1 ring-inset ring-slate-300 hover:bg-slate-50 focus:z-20 focus:outline-offset-0">
+                                      <span class="sr-only">Next</span>
+                                      <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                          <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
+                                      </svg>
+                                  </a>
+                              {% endif %}
+                          </nav>
+                      </div>
+                  </div>
               </div>
           {% endif %}
-          <ul class="sidebar-nav">
-
-            ...
-        
-           {% if user.is_authenticated %}
-             <li>User: {{ user.get_username }}</li>
-             <li><a href="{% url 'my-borrowed' %}">My Borrowed</a></li>
-             <li><a href="{% url 'logout'%}?next={{request.path}}">Logout</a></li>   
-           {% else %}
-             <li><a href="{% url 'login'%}?next={{request.path}}">Login</a></li>   
-           {% endif %} 
-          </ul>
-          {% if user.is_staff %}
-          <hr />
-          <ul class="sidebar-nav">
-          <li>Staff</li>
-          {% if perms.catalog.can_mark_returned %}
-          <li><a href="{% url 'all-borrowed' %}">All borrowed</a></li>
-          {% endif %}
-          </ul>
-           {% endif %}
-        
         {% endblock %} 
       </div>
-    </div>
+    </main>
+
   </div>
+
 </body>
 </html>

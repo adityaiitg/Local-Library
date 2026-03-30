@@ -1,0 +1,16 @@
+services:
+  # ── Django Web Application ───────────────────────────────────────────────────
+  web:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: sqlite:///db.sqlite3
+    volumes:
+      - static_volume:/app/staticfiles
+
+volumes:
+  static_volume:

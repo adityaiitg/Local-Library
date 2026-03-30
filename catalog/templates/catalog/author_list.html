@@ -1,16 +1,55 @@
 {% extends "base_generic.html" %}
 
+{% block title %}
+<title>Authors | Local Library</title>
+{% endblock %}
+
+{% block header_title %}All Authors{% endblock %}
+
 {% block content %}
-  <h1>Author List</h1>
-  {% if author_list %}
-  <ul>
-    {% for author in author_list %}
-      <li>
-        <a href="{{ author.get_absolute_url }}">{{ author.first_name }},{{author.last_name}}</a> ({{author.date_of_birth}}-{{author.date_of_death}})
-      </li>
-    {% endfor %}
-  </ul>
-  {% else %}
-    <p>There are no Author in the library.</p>
-  {% endif %}       
+<div class="mb-6 flex justify-between items-center">
+  <h2 class="text-2xl font-bold text-slate-800">Authors Directory</h2>
+  {% if perms.catalog.add_author %}
+  <a href="{% url 'author_create' %}" class="btn-primary">Add New Author</a>
+  {% endif %}
+</div>
+
+{% if author_list %}
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+  {% for author in author_list %}
+  <div class="card flex flex-col items-center text-center hover:border-indigo-300">
+    <div class="h-20 w-20 rounded-full bg-indigo-100 flex items-center justify-center mb-4">
+      <span class="text-2xl font-bold text-indigo-700">{{ author.first_name|first }}{{ author.last_name|first }}</span>
+    </div>
+    
+    <h3 class="text-xl font-bold text-slate-900 mb-1">
+      <a href="{{ author.get_absolute_url }}" class="hover:text-indigo-600 transition-colors">{{ author.first_name }} {{ author.last_name }}</a>
+    </h3>
+    
+    <div class="text-sm text-slate-500 mb-4 flexflex-col gap-1">
+      {% if author.date_of_birth %}
+      <p>Born: {{ author.date_of_birth }}</p>
+      {% endif %}
+      {% if author.date_of_death %}
+      <p>Died: {{ author.date_of_death }}</p>
+      {% endif %}
+    </div>
+    
+    <div class="mt-auto pt-4 w-full border-t border-slate-100">
+      <a href="{{ author.get_absolute_url }}" class="text-sm font-medium text-indigo-600 hover:text-indigo-800 block w-full">
+        View Author Profile
+      </a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-16 bg-white rounded-xl shadow-sm border border-slate-200">
+  <svg class="mx-auto h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+  </svg>
+  <h3 class="mt-2 text-sm font-semibold text-slate-900">No authors</h3>
+  <p class="mt-1 text-sm text-slate-500">There are no authors in the library yet.</p>
+</div>
+{% endif %}       
 {% endblock %}

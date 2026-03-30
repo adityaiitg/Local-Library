@@ -1,19 +1,77 @@
 {% extends "base_generic.html" %}
+
 {% block title %}
-   <title>Local Library From Index.html</title>
+   <title>Home | Local Library</title>
 {% endblock %}
+
+{% block header_title %}Library Dashboard{% endblock %}
+
 {% block content %}
-  <h1>Local Library Home</h1>
-  <p>Welcome to LocalLibrary, a website developed by <em>ADITYA</em>!</p>
-  <h2>Dynamic content</h2>
-  <p>The library has the following record counts:</p>
-  <ul>
-    <li><strong>Books:</strong> {{ num_books }}</li>
-    <li><strong>Copies:</strong> {{ num_instances }}</li>
-    <li><strong>Copies available:</strong> {{ num_instances_available }}</li>
-    <li><strong>Authors:</strong> {{ num_authors }}</li>
-    <li><strong>CS Books:</strong> {{  cs_book_genre }}</li>
-    <li><strong>Algobooks:</strong> {{ algo_book }}</li>
-  </ul>
-  <p>You have visited this page {{ num_visits }}{% if num_visits == 1 %} time{% else %} times{% endif %}.</p>
+<div class="space-y-6">
+  <div class="flex items-center justify-between">
+    <h1 class="text-3xl font-bold tracking-tight text-slate-900">Welcome to Local Library</h1>
+    <span class="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-sm font-semibold text-indigo-600 ring-1 ring-inset ring-indigo-500/20">
+      Visits: {{ num_visits }}
+    </span>
+  </div>
+  
+  <p class="text-lg text-slate-600 mt-2 max-w-3xl">This is a dynamic dashboard giving you real-time metrics of the local library's current database inventory and active loans.</p>
+
+  <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 mt-8">
+    
+    <!-- Stat Card: Books -->
+    <div class="card bg-gradient-to-br from-indigo-500 to-purple-600 text-white border-none transform hover:-translate-y-1">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-indigo-100 mb-1">Total Books</p>
+          <p class="text-4xl font-bold">{{ num_books }}</p>
+        </div>
+        <div class="p-3 bg-white/20 rounded-xl">
+          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stat Card: Copies -->
+    <div class="card hover:shadow-md transform hover:-translate-y-1">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-slate-500 mb-1">Total Copies</p>
+          <p class="text-3xl font-bold text-slate-900">{{ num_instances }}</p>
+        </div>
+        <div class="p-3 bg-emerald-100 rounded-xl">
+          <svg class="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stat Card: Available -->
+    <div class="card hover:shadow-md transform hover:-translate-y-1">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-slate-500 mb-1">Copies Available</p>
+          <p class="text-3xl font-bold text-slate-900">{{ num_instances_available }}</p>
+        </div>
+        <div class="p-3 bg-blue-100 rounded-xl">
+          <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stat Card: Authors -->
+    <div class="card hover:shadow-md transform hover:-translate-y-1">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-slate-500 mb-1">Authors Registered</p>
+          <p class="text-3xl font-bold text-slate-900">{{ num_authors }}</p>
+        </div>
+        <div class="p-3 bg-orange-100 rounded-xl">
+          <svg class="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+
+</div>
 {% endblock %}

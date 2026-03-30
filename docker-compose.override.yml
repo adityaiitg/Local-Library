@@ -1,0 +1,13 @@
+# docker-compose.override.yml
+# Local development overrides - mounts source code for live reload with SQLite
+services:
+  web:
+    build:
+      context: .
+      target: base  # Use base stage (no static collection needed)
+    command: uv run python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app  # Mount source for live reload
+    environment:
+      DATABASE_URL: sqlite:///db.sqlite3
+      DEBUG: "True"

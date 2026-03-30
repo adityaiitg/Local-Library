@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+@layer components {
+    .btn-primary {
+        @apply px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 hover:shadow-lg transition-all duration-200 focus:ring-4 focus:ring-indigo-300;
+    }
+    .btn-secondary {
+        @apply px-4 py-2 bg-slate-200 text-slate-800 rounded-lg shadow-sm hover:bg-slate-300 hover:shadow transition-all duration-200;
+    }
+    .card {
+        @apply bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 transition-all duration-300;
+    }
+    .input-field {
+        @apply w-full rounded-lg border-slate-300 bg-slate-50 text-slate-900 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm transition duration-150;
+    }
+}
